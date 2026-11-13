@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Car Racing Game</title>
+<style>
+body {
+  margin: 0;
+  background: #222;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+}
+canvas {
+  background: #444;
+  border: 3px solid white;
+  margin-top: 10px;
+}
+button {
+  padding: 15px 25px;
+  margin: 10px;
+  font-size: 20px;
+  border-radius: 10px;
+}
+</style>
+</head>
+<body>
+
+<h2>🏎️ Car Racing Game</h2>
+<h3>Score: <span id="score">0</span></h3>
+
+<canvas id="game" width="320" height="500"></canvas>
+
+<br>
+<button onclick="move(-1)">⬅️</button>
+<button onclick="move(1)">➡️</button>
+<button onclick="restart()">Restart</button>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let car = 140;
+let enemy = 140;
+let enemyY = -100;
+let score = 0;
+let speed = 4;
+let over = false;
+
+function move(dir) {
+  if (!over) {
+    car += dir * 40;
+    car = Math.max(30, Math.min(250, car));
+  }
+}
+
+function restart() {
+  car = 140;
+  enemy = Math.floor(Math.random()*3)*100+40;
+  enemyY = -100;
+  score = 0;
+  speed = 4;
+  over = false;
+  loop();
+}
+
+function loop() {
+  if (over) return;
+
+  ctx.clearRect(0,0,320,500);
+
+  // Road
+  ctx.fillStyle = "#555";
+  ctx.fillRect(20,0,280,500);
+
+  // Road lines
+  ctx.strokeStyle = "white";
+  ctx.setLineDash([25,20]);
+  ctx.beginPath();
+  ctx.moveTo(160,0);
+  ctx.lineTo(160,500);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Player car
+  ctx.fillStyle = "lime";
+  ctx.fillRect(car,400,40,70);
+
+  // Enemy car
+  ctx.fillStyle = "red";
+  ctx.fillRect(enemy,enemyY,40,70);
+
+  enemyY += speed;
+
+  // Collision
+  if (enemyY > 390 &&
+      enemyY < 470 &&
+      car < enemy+40 &&
+      car+40 > enemy) {
+    over = true;
+    alert("Game Over! Score: " + score);
+    return;
+  }
+
+  // Score
+  if (enemyY > 500) {
+    enemyY = -100;
+    enemy = Math.floor(Math.random()*3)*100+40;
+    score++;
+    speed += 0.2;
+    document.getElementById("score").innerText = score;
+  }
+
+  requestAnimationFrame(loop);
+}
+
+document.addEventListener("keydown", e => {
+  if(e.key === "ArrowLeft") move(-1);
+  if(e.key === "ArrowRight") move(1);
+});
+
+restart();
+</script>
+</body>
+</html>
